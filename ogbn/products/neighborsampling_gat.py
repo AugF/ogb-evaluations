@@ -15,6 +15,8 @@ from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
 from torch_geometric.data import NeighborSampler
 from torch_geometric.nn import GATConv
 
+from logger import Logger
+
 parser = argparse.ArgumentParser(description='OGBN-Products(GAT)')
 parser.add_argument('--device', type=int, default=0)
 parser.add_argument('--lr', type=float, default=0.001)
@@ -22,6 +24,8 @@ parser.add_argument('--epochs', type=int, default=100)
 parser.add_argument('--runs', type=int, default=10)
 args = parser.parse_args()
 print(args)
+
+logger = Logger(args.runs, args)
 
 dataset = PygNodePropPredDataset('ogbn-products', root="/home/wangzhaokang/wangyunpan/gnns-project/ogb_evaluations/dataset")
 split_idx = dataset.get_idx_split()
@@ -192,7 +196,9 @@ for run in range(args.runs):
         print(f'Epoch {epoch:02d}, Loss: {loss:.4f}, Approx. Train: {acc:.4f}')
 
         if epoch > 50 and epoch % 10 == 0:
-            train_acc, val_acc, test_acc = test()
+            result = test()
+            logger.add_result(run, result)
+            train_acc, val_acc, test_acc = result
             print(f'Train: {train_acc:.4f}, Val: {val_acc:.4f}, '
                   f'Test: {test_acc:.4f}')
 
@@ -200,7 +206,10 @@ for run in range(args.runs):
                 best_val_acc = val_acc
                 final_test_acc = test_acc
     test_accs.append(final_test_acc)
+    logger.print_statistics(run)
 
 test_acc = torch.tensor(test_accs)
 print('============================')
 print(f'Final Test: {test_acc.mean():.4f} ± {test_acc.std():.4f}')
+logger.print_statistics()
+logger.save(__file__[:-3])
