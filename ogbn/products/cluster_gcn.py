@@ -19,8 +19,6 @@ import numpy as np
 
 from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
 
-from logger import Logger
-
 
 class GCN(torch.nn.Module):
     def __init__(self, in_channels, hidden_channels, out_channels, num_layers,
