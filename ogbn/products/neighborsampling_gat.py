@@ -5,6 +5,7 @@ rank: 7
 2020-10-27
 '''
 import os.path as osp
+import argparse
 
 import torch
 import torch.nn.functional as F
@@ -14,6 +15,13 @@ from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
 from torch_geometric.data import NeighborSampler
 from torch_geometric.nn import GATConv
 
+parser = argparse.ArgumentParser(description='OGBN-Products(GAT)')
+parser.add_argument('--device', type=int, default=0)
+parser.add_argument('--lr', type=float, default=0.001)
+parser.add_argument('--epochs', type=int, default=100)
+parser.add_argument('--runs', type=int, default=10)
+args = parser.parse_args()
+print(args)
 
 dataset = PygNodePropPredDataset('ogbn-products', root="/home/wangzhaokang/wangyunpan/gnns-project/ogb_evaluations/dataset")
 split_idx = dataset.get_idx_split()
@@ -106,7 +114,7 @@ class GAT(torch.nn.Module):
         return x_all
 
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = f'cuda:{args.device}' if torch.cuda.is_available() else 'cpu'
 model = GAT(dataset.num_features, 128, dataset.num_classes, num_layers=3,
             heads=4)
 model = model.to(device)
@@ -170,16 +178,16 @@ def test():
 
 
 test_accs = []
-for run in range(1, 11):
+for run in range(args.runs):
     print('')
     print(f'Run {run:02d}:')
     print('')
 
     model.reset_parameters()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
     best_val_acc = final_test_acc = 0
-    for epoch in range(1, 101):
+    for epoch in range(1, 1 + args.epochs):
         loss, acc = train(epoch)
         print(f'Epoch {epoch:02d}, Loss: {loss:.4f}, Approx. Train: {acc:.4f}')
 
