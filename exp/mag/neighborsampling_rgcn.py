@@ -24,6 +24,7 @@ from logger import Logger
 parser = argparse.ArgumentParser(description='OGBN-MAG (SAGE)')
 parser.add_argument('--device', type=int, default=0)
 parser.add_argument('--num_layers', type=int, default=2)
+parser.add_argument('--batch_size', type=int, default=1024)
 parser.add_argument('--hidden_channels', type=int, default=64)
 parser.add_argument('--dropout', type=float, default=0.5)
 parser.add_argument('--lr', type=float, default=0.01)
@@ -88,7 +89,7 @@ paper_idx = local2global['paper']
 paper_train_idx = paper_idx[split_idx['train']['paper']]
 
 train_loader = NeighborSampler(edge_index, node_idx=paper_train_idx,
-                               sizes=[25, 20], batch_size=1024, shuffle=True,
+                               sizes=[25, 20], batch_size=args.batch_size, shuffle=True,
                                num_workers=12)
 
 

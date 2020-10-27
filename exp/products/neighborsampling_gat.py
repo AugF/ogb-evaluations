@@ -17,6 +17,7 @@ from torch_geometric.nn import GATConv
 
 parser = argparse.ArgumentParser(description='OGBN-Products(GAT)')
 parser.add_argument('--device', type=int, default=0)
+parser.add_argument('--batch_size', type=int, default=512)
 parser.add_argument('--lr', type=float, default=0.001)
 parser.add_argument('--epochs', type=int, default=100)
 parser.add_argument('--runs', type=int, default=10)
@@ -30,7 +31,7 @@ data = dataset[0]
 
 train_idx = split_idx['train']
 train_loader = NeighborSampler(data.edge_index, node_idx=train_idx,
-                               sizes=[10, 10, 10], batch_size=512,
+                               sizes=[10, 10, 10], batch_size=args.batch_size,
                                shuffle=True, num_workers=12)
 subgraph_loader = NeighborSampler(data.edge_index, node_idx=None, sizes=[-1],
                                   batch_size=1024, shuffle=False,
