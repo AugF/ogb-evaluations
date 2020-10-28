@@ -1,3 +1,6 @@
 dataset/*
 __*
+*.log
+*npy
 test*
+exp/*/*out
