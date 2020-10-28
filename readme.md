@@ -17,4 +17,8 @@
 依据："Open Graph Benchmark: Datasets for Machine Learning on Graphs
 "(stanford, NIPS2020). [leader_nodeprop](https://ogb.stanford.edu/docs/leader_nodeprop/)
 
-products: 6,7,9
+products: 6,7,10
+cluster_gcn, graphsaint_sage, neighborsamping_gat
+
+mag: 2,4,6
+cluster_rgcn, graphsaint_rgcn, neighborsampling_rgcn
