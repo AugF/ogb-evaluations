@@ -193,7 +193,6 @@ def main():
 
     evaluator = Evaluator(name='ogbn-products')
     logger = Logger(args.runs, args)
-    logger_orig = Logger(args.runs, args)
    
     adj = process_adj(data)
 
@@ -212,17 +211,16 @@ def main():
 
             if epoch > 19 and epoch % args.eval_steps == 0:
                 out, result = test(model, data, evaluator, subgraph_loader, device)
-                logger_orig.add_result(run, result)
+                logger.add_result(run, result)
                 train_acc, valid_acc, test_acc = result
                 print(f'Run: {run + 1:02d}, '
-                      f'Epoch: {epoch:02d}, '
-                      f'Train: {100 * train_acc:.2f}%, '
-                      f'Valid: {100 * valid_acc:.2f}% '
-                      f'Test: {100 * test_acc:.2f}%')
+                        f'Epoch: {epoch:02d}, '
+                        f'Train: {100 * train_acc:.2f}%, '
+                        f'Valid: {100 * valid_acc:.2f}% '
+                        f'Test: {100 * test_acc:.2f}%')
         logger.print_statistics(run)
     logger.print_statistics()
-    logger_orig.print_statistics()
-    logger_orig.save(__file__[:-3])
+    logger.save(__file__[:-3])
 
 
 if __name__ == "__main__":
