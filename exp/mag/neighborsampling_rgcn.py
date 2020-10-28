@@ -4,6 +4,7 @@ report acc: 0.4678 ± 0.0067
 rank: 4
 date: 2020-10-27 
 '''
+import time
 from copy import copy
 import argparse
 from tqdm import tqdm
@@ -271,28 +272,42 @@ y_global = y_global.to(device)
 def train(epoch):
     model.train()
 
-    pbar = tqdm(total=paper_train_idx.size(0))
-    pbar.set_description(f'Epoch {epoch:02d}')
+    # pbar = tqdm(total=paper_train_idx.size(0))
+    # pbar.set_description(f'Epoch {epoch:02d}')
 
     total_loss = 0
-    for batch_size, n_id, adjs in train_loader:
-        n_id = n_id.to(device)
-        adjs = [adj.to(device) for adj in adjs]
-        optimizer.zero_grad()
-        out = model(n_id, x_dict, adjs, edge_type, node_type, local_node_idx)
-        y = y_global[n_id][:batch_size].squeeze()
-        loss = F.nll_loss(out, y)
-        loss.backward()
-        optimizer.step()
+    
+    sampling_time, to_time, train_time = 0.0, 0.0, 0.0
+    loader_iter = iter(train_loader)
+     
+    while True:
+        try:
+            t0 = time.time()
+            batch_size, n_id, adjs = next(loader_iter)
+            t1 = time.time()
+            n_id = n_id.to(device)
+            adjs = [adj.to(device) for adj in adjs]
+            t2 = time.time()
+            
+            optimizer.zero_grad()
+            out = model(n_id, x_dict, adjs, edge_type, node_type, local_node_idx)
+            y = y_global[n_id][:batch_size].squeeze()
+            loss = F.nll_loss(out, y)
+            loss.backward()
+            optimizer.step()
 
-        total_loss += loss.item() * batch_size
-        pbar.update(batch_size)
-
-    pbar.close()
+            total_loss += loss.item() * batch_size
+            # pbar.update(batch_size)
+            train_time += time.time() - t2
+            to_time += t2 - t1
+            sampling_time += t1 - t0   
+        except StopIteration:
+            break
+    # pbar.close()
 
     loss = total_loss / paper_train_idx.size(0)
 
-    return loss
+    return loss, sampling_time, to_time, train_time
 
 
 @torch.no_grad()
@@ -320,21 +335,39 @@ def test():
 
     return train_acc, valid_acc, test_acc
 
+avg_sampling_time, avg_to_time, avg_train_time = 0.0, 0.0, 0.0
 
 test()  # Test if inference on GPU succeeds.
 for run in range(args.runs):
     model.reset_parameters()
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     for epoch in range(1, 1 + args.epochs):
-        loss = train(epoch)
+        t0 = time.time()
+        loss, sampling_time, to_time, train_time = train(epoch)
+        torch.cuda.empty_cache()        
+        avg_sampling_time += sampling_time
+        avg_to_time += to_time
+        avg_train_time += train_time
+        
         result = test()
         logger.add_result(run, result)
         train_acc, valid_acc, test_acc = result
         print(f'Run: {run + 1:02d}, '
-              f'Epoch: {epoch:02d}, '
-              f'Loss: {loss:.4f}, '
-              f'Train: {100 * train_acc:.2f}%, '
-              f'Valid: {100 * valid_acc:.2f}%, '
-              f'Test: {100 * test_acc:.2f}%')
+            f'Epoch: {epoch: 02d}, '
+            f'Loss: {loss:.4f}, '
+            f'Train: {100 * train_acc:.2f}%, '
+            f'Valid: {100 * valid_acc:.2f}%, '
+            f'Test: {100 * test_acc:.2f}%, '
+            f'Time: {time.time() - t0}s')
+
     logger.print_statistics(run)
+
+avg_sampling_time /= args.runs * args.epochs
+avg_to_time /= args.runs * args.epochs
+avg_train_time /= args.runs * args.epochs
+print(f'Avg_sampling_time: {avg_sampling_time}s, '
+    f'Avg_to_time: {avg_to_time}s, ',
+    f'Avg_train_time: {avg_train_time}s')
+
 logger.print_statistics()
+logger.save("/home/wangzhaokang/wangyunpan/gnns-project/ogb_evaluations/exp/npy/" + __file__[:-3] + str(args.batch_size))

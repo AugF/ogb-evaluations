@@ -1,70 +1,53 @@
 '''
-https://github.com/Chillee/ogb_baselines/tree/master/ogbn_products master: 25e793b
-report acc: 0.7971 ± 0.0042
-rank: 6
-date: 2020-10-27 
+https://github.com/snap-stanford/ogb/blob/master/examples/nodeproppred/products/cluster_gcn.py master: cf066f9
+report acc: 0.7897 ± 0.0033
+rank: 11
+2020-10-27
 '''
 import time
 import sys
 import argparse
 
 import torch
-from tqdm import tqdm
 import torch.nn.functional as F
 
 from torch_geometric.data import ClusterData, ClusterLoader, NeighborSampler
 from torch_geometric.nn import SAGEConv
-from torch_geometric.utils import to_undirected
-from torch_sparse import SparseTensor
-import numpy as np
 
-from logger import Logger
 from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
 
+from logger import Logger
 
-class GCN(torch.nn.Module):
+
+class SAGE(torch.nn.Module):
     def __init__(self, in_channels, hidden_channels, out_channels, num_layers,
                  dropout):
-        super(GCN, self).__init__()
-        self.inProj = torch.nn.Linear(in_channels, hidden_channels)
+        super(SAGE, self).__init__()
+
         self.convs = torch.nn.ModuleList()
-        for _ in range(num_layers):
+        self.convs.append(SAGEConv(in_channels, hidden_channels))
+        for _ in range(num_layers - 2):
             self.convs.append(SAGEConv(hidden_channels, hidden_channels))
         self.convs.append(SAGEConv(hidden_channels, out_channels))
 
-        self.linear = torch.nn.Linear(hidden_channels, out_channels)
-        self.weights = torch.nn.Parameter(torch.randn((len(self.convs))))
         self.dropout = dropout
 
     def reset_parameters(self):
-        self.inProj.reset_parameters()
-        self.linear.reset_parameters()
-        torch.nn.init.normal_(self.weights)
         for conv in self.convs:
             conv.reset_parameters()
 
-    def forward(self, x, edge_index, edge_weight=None):
-        x = self.inProj(x)
-        inp = x
-        x = F.relu(x)
-        for i, conv in enumerate(self.convs):
-            x = conv(x, edge_index, edge_weight)
-            if i != len(self.convs) - 1:
-                x = F.relu(x)
-                x = F.dropout(x, p=self.dropout, training=self.training)
-                x = x + 0.2*inp
- 
+    def forward(self, x, edge_index):
+        for conv in self.convs[:-1]:
+            x = conv(x, edge_index)
+            x = F.relu(x)
+            x = F.dropout(x, p=self.dropout, training=self.training)
+        x = self.convs[-1](x, edge_index)
         return torch.log_softmax(x, dim=-1)
 
     def inference(self, x_all, subgraph_loader, device):
         # pbar = tqdm(total=x_all.size(0) * len(self.convs))
         # pbar.set_description('Evaluating')
-        
-        x_all = self.inProj(x_all.to(device))
-        x_all = x_all.cpu()
-        inp = x_all
-        x_all = F.relu(x_all)
-        out = []
+
         for i, conv in enumerate(self.convs):
             xs = []
             for batch_size, n_id, adj in subgraph_loader:
@@ -74,17 +57,16 @@ class GCN(torch.nn.Module):
                 x = conv((x, x_target), edge_index)
                 if i != len(self.convs) - 1:
                     x = F.relu(x)
-                    x = F.dropout(x, p=self.dropout, training=self.training)
                 xs.append(x.cpu())
 
                 # pbar.update(batch_size)
 
             x_all = torch.cat(xs, dim=0)
-            if i != len(self.convs) - 1:
-                x_all = x_all + 0.2*inp
+
         # pbar.close()
 
         return x_all
+
 
 def train(model, loader, optimizer, device):
     model.train()
@@ -144,21 +126,7 @@ def test(model, data, evaluator, subgraph_loader, device):
         'y_pred': y_pred[data.test_mask]
     })['acc']
 
-    return out, (train_acc, valid_acc, test_acc)
-
-def process_adj(data):
-    N = data.num_nodes
-    data.edge_index = to_undirected(data.edge_index, data.num_nodes)
-
-    row, col = data.edge_index
-
-    adj = SparseTensor(row=row, col=col, sparse_sizes=(N, N))
-    adj = adj.set_diag()
-    deg = adj.sum(dim=1).to(torch.float)
-    deg_inv_sqrt = deg.pow(-0.5)
-    deg_inv_sqrt[deg_inv_sqrt == float('inf')] = 0
-    adj = deg_inv_sqrt.view(-1, 1) * adj * deg_inv_sqrt.view(1, -1)
-    return adj
+    return train_acc, valid_acc, test_acc
 
 
 def main():
@@ -201,35 +169,31 @@ def main():
                                       batch_size=1024, shuffle=False,
                                       num_workers=args.num_workers)
 
-    model = GCN(data.x.size(-1), args.hidden_channels, dataset.num_classes,
+    model = SAGE(data.x.size(-1), args.hidden_channels, dataset.num_classes,
                  args.num_layers, args.dropout).to(device)
 
     evaluator = Evaluator(name='ogbn-products')
     logger = Logger(args.runs, args)
 
-    adj = process_adj(data)
-
-    avg_sampling_time, avg_to_time, avg_train_time = 0.0, 0.0, 0.0
+    avg_sampling_time, avg_to_time, avg_train_time = 0.0, 0.0, 0.0  
     
     for run in range(args.runs):
         model.reset_parameters()
         optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
-
         for epoch in range(1, 1 + args.epochs):
             t0 = time.time()
             loss, sampling_time, to_time, train_time = train(model, loader, optimizer, device)
-            torch.cuda.empty_cache()
             avg_sampling_time += sampling_time
             avg_to_time += to_time
             avg_train_time += train_time
-            
             # if epoch % args.log_steps == 0:
             #     print(f'Run: {run + 1:02d}, '
             #           f'Epoch: {epoch:02d}, '
-            #           f'Loss: {loss:.4f}')
+            #           f'Loss: {loss:.4f}, '
+            #           f'Approx Train Acc: {train_acc:.4f}')
 
             # if epoch > 19 and epoch % args.eval_steps == 0:
-            _, result = test(model, data, evaluator, subgraph_loader, device)
+            result = test(model, data, evaluator, subgraph_loader, device)
             logger.add_result(run, result)
             train_acc, valid_acc, test_acc = result
             print(f'Run: {run + 1:02d}, '

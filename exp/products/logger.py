@@ -46,3 +46,4 @@ class Logger(object):
 
     def save(self, file_name):
         np.save(file_name, np.array(self.results))
+        

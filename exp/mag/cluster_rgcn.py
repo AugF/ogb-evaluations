@@ -5,9 +5,9 @@ rank: 6
 date: 2020-10-27 
 '''
 import time
+import sys
 from copy import copy
 import argparse
-from tqdm import tqdm
 
 import torch
 import torch.nn.functional as F
@@ -333,24 +333,25 @@ for run in range(args.runs):
         avg_sampling_time += sampling_time
         avg_to_time += to_time
         avg_train_time += train_time
-        
+
         result = test()
         logger.add_result(run, result)
         train_acc, valid_acc, test_acc = result
         print(f'Run: {run + 1:02d}, '
-              f'Epoch: {epoch:02d}, '
-              f'Loss: {loss:.4f}, '
-              f'Train: {100 * train_acc:.2f}%, '
-              f'Test: {100 * test_acc:.2f}%, '
-              f'Time: {time.time() - t0}s')
+            f'Epoch: {epoch:02d}, '
+            f'Loss: {loss:.4f}, '
+            f'Train: {100 * train_acc:.2f}%, '
+            f'Test: {100 * test_acc:.2f}%, '
+            f'Time: {time.time() - t0}s')
+
     logger.print_statistics(run)
 
 avg_sampling_time /= args.runs * args.epochs
 avg_to_time /= args.runs * args.epochs
 avg_train_time /= args.runs * args.epochs
 print(f'Avg_sampling_time: {avg_sampling_time}s, '
-     f'Avg_to_time: {avg_to_time}s, ',
-     f'Avg_train_time: {avg_train_time}s')
+    f'Avg_to_time: {avg_to_time}s, ',
+    f'Avg_train_time: {avg_train_time}s')
 
 logger.print_statistics()
 logger.save("/home/wangzhaokang/wangyunpan/gnns-project/ogb_evaluations/exp/npy/" + __file__[:-3] + str(args.batch_size))
