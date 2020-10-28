@@ -1,5 +1,5 @@
 dataset/*
-__*
+*__*
 *.log
 *npy
 test*
