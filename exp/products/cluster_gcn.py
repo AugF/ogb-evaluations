@@ -250,7 +250,7 @@ def main():
         f'Avg_train_time: {avg_train_time}s')
     
     logger.print_statistics()
-    logger.save("/home/wangzhaokang/wangyunpan/gnns-project/ogb_evaluations/exp/npy/" + __file__[:-3] + str(args.batch_size))
+    logger.save("/home/wangzhaokang/wangyunpan/gnns-project/ogb_evaluations/exp/npy/products_cluster_gcn" + str(args.batch_size))
 
 
 if __name__ == "__main__":

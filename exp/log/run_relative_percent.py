@@ -29,7 +29,7 @@ for sampler in ['neighborsampling', 'cluster', 'graphsaint']:
         for bs in batch_sizes[f'{data}_{sampler}_{alg}']:
             print("batch_size", bs)
             st = time.time()
-            cmd = f"python -u {file_path} --epochs 75 --runs 2 --device {device_id} 1>log/{data}_{sampler}_{alg}_{bs}.out 2>&1"
+            cmd = f"python -u {file_path} --epochs 60 --runs 1 --device {device_id} 1>log/{data}_{sampler}_{alg}_{bs}.out 2>&1"
             os.system(cmd)
             ed = time.time()
             print(f"{time.strftime('%Y.%m.%d',time.localtime(ed))}, use_time: {ed - st}")

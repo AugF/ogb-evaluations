@@ -370,4 +370,4 @@ print(f'Avg_sampling_time: {avg_sampling_time}s, '
     f'Avg_train_time: {avg_train_time}s')
 
 logger.print_statistics()
-logger.save("/home/wangzhaokang/wangyunpan/gnns-project/ogb_evaluations/exp/npy/" + __file__[:-3] + str(args.batch_size))
+logger.save("/home/wangzhaokang/wangyunpan/gnns-project/ogb_evaluations/exp/npy/mag_neighborsampling_rgcn" + str(args.batch_size))
