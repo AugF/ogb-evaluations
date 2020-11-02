@@ -1,0 +1,2 @@
+python -u products/cluster_gcn.py --batch_size 75 --epochs 60 --runs 1 --device 1 1>log/products_cluster_gcn_75.out 2>&1 
+python -u products/cluster_sage.py --batch_size 75 --epochs 60 --runs 1 --device 1 1>log/products_cluster_sage_75.out 2>&1

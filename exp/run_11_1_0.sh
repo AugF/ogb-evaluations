@@ -1,0 +1,2 @@
+python -u mag/cluster_rgcn.py --batch_size 1000 --epochs 60 --runs 1 --device 0 1>log/mag_cluster_rgcn_1000.out 2>&1
+python -u products/cluster_gcn.py --batch_size 1350 --epochs 60 --runs 1 --device 0 1>log/products_cluster_gcn_1350.out 2>&1 
