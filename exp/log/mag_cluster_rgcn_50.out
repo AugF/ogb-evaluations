@@ -1,0 +1,103 @@
+Using backend: pytorch
+Namespace(batch_size=50, device=0, dropout=0.5, epochs=60, hidden_channels=64, lr=0.005, num_layers=2, runs=1)
+Data(
+  edge_index_dict={
+    ('author', 'affiliated_with', 'institution')=[2, 1043998],
+    ('author', 'writes', 'paper')=[2, 7145660],
+    ('paper', 'cites', 'paper')=[2, 5416271],
+    ('paper', 'has_topic', 'field_of_study')=[2, 7505078]
+  },
+  edge_reltype={
+    ('author', 'affiliated_with', 'institution')=[1043998, 1],
+    ('author', 'writes', 'paper')=[7145660, 1],
+    ('paper', 'cites', 'paper')=[5416271, 1],
+    ('paper', 'has_topic', 'field_of_study')=[7505078, 1]
+  },
+  node_year={
+    paper=[736389, 1]
+  },
+  num_nodes_dict={
+    author=1134649,
+    field_of_study=59965,
+    institution=8740,
+    paper=736389
+  },
+  x_dict={
+    paper=[736389, 128]
+  },
+  y_dict={
+    paper=[736389, 1]
+  }
+)
+Data(edge_attr=[42182144], edge_index=[2, 42182144], local_node_idx=[1939743], node_type=[1939743], train_mask=[1939743], y=[1939743, 1])
+Run: 01, Epoch: 01, Loss: 4.1853, Train: 22.67%, Test: 23.39%, Time: 17.15665578842163s
+Run: 01, Epoch: 02, Loss: 2.9549, Train: 34.07%, Test: 31.89%, Time: 17.30681085586548s
+Run: 01, Epoch: 03, Loss: 2.0006, Train: 42.71%, Test: 33.89%, Time: 17.181814193725586s
+Run: 01, Epoch: 04, Loss: 1.4139, Train: 46.83%, Test: 32.93%, Time: 17.851330518722534s
+Run: 01, Epoch: 05, Loss: 1.1081, Train: 48.53%, Test: 33.48%, Time: 18.675793886184692s
+Run: 01, Epoch: 06, Loss: 0.9218, Train: 49.42%, Test: 33.34%, Time: 18.91785717010498s
+Run: 01, Epoch: 07, Loss: 0.8001, Train: 50.39%, Test: 33.35%, Time: 18.674856185913086s
+Run: 01, Epoch: 08, Loss: 0.7069, Train: 50.00%, Test: 32.82%, Time: 19.328194856643677s
+Run: 01, Epoch: 09, Loss: 0.6369, Train: 50.96%, Test: 32.47%, Time: 18.54799222946167s
+Run: 01, Epoch: 10, Loss: 0.5846, Train: 50.51%, Test: 32.02%, Time: 17.919485569000244s
+Run: 01, Epoch: 11, Loss: 0.5376, Train: 51.24%, Test: 32.59%, Time: 18.889117002487183s
+Run: 01, Epoch: 12, Loss: 0.5022, Train: 51.38%, Test: 32.21%, Time: 18.2458074092865s
+Run: 01, Epoch: 13, Loss: 0.4701, Train: 50.06%, Test: 32.74%, Time: 18.33494257926941s
+Run: 01, Epoch: 14, Loss: 0.4431, Train: 51.32%, Test: 32.22%, Time: 18.509511470794678s
+Run: 01, Epoch: 15, Loss: 0.4225, Train: 51.23%, Test: 31.81%, Time: 19.046764850616455s
+Run: 01, Epoch: 16, Loss: 0.3995, Train: 51.01%, Test: 32.12%, Time: 17.475362062454224s
+Run: 01, Epoch: 17, Loss: 0.3825, Train: 50.80%, Test: 31.40%, Time: 18.11031174659729s
+Run: 01, Epoch: 18, Loss: 0.3686, Train: 50.72%, Test: 32.42%, Time: 19.41882848739624s
+Run: 01, Epoch: 19, Loss: 0.3557, Train: 50.58%, Test: 32.01%, Time: 18.995189905166626s
+Run: 01, Epoch: 20, Loss: 0.3444, Train: 50.22%, Test: 32.10%, Time: 18.512539625167847s
+Run: 01, Epoch: 21, Loss: 0.3342, Train: 50.51%, Test: 31.65%, Time: 19.239100217819214s
+Run: 01, Epoch: 22, Loss: 0.3279, Train: 50.29%, Test: 31.77%, Time: 18.99963092803955s
+Run: 01, Epoch: 23, Loss: 0.3147, Train: 49.94%, Test: 30.97%, Time: 18.47037386894226s
+Run: 01, Epoch: 24, Loss: 0.3111, Train: 50.15%, Test: 32.44%, Time: 18.90063714981079s
+Run: 01, Epoch: 25, Loss: 0.3033, Train: 50.20%, Test: 31.18%, Time: 18.429073572158813s
+Run: 01, Epoch: 26, Loss: 0.2940, Train: 50.21%, Test: 31.40%, Time: 18.639760732650757s
+Run: 01, Epoch: 27, Loss: 0.2900, Train: 50.02%, Test: 31.42%, Time: 18.365642070770264s
+Run: 01, Epoch: 28, Loss: 0.2851, Train: 49.55%, Test: 31.29%, Time: 17.76789927482605s
+Run: 01, Epoch: 29, Loss: 0.2794, Train: 49.50%, Test: 30.05%, Time: 17.704399347305298s
+Run: 01, Epoch: 30, Loss: 0.2754, Train: 49.94%, Test: 30.57%, Time: 19.179576635360718s
+Run: 01, Epoch: 31, Loss: 0.2715, Train: 49.45%, Test: 30.23%, Time: 19.202486515045166s
+Run: 01, Epoch: 32, Loss: 0.2688, Train: 49.50%, Test: 31.61%, Time: 18.756012201309204s
+Run: 01, Epoch: 33, Loss: 0.2641, Train: 49.77%, Test: 30.98%, Time: 19.260345697402954s
+Run: 01, Epoch: 34, Loss: 0.2563, Train: 49.48%, Test: 31.52%, Time: 19.049139976501465s
+Run: 01, Epoch: 35, Loss: 0.2547, Train: 49.79%, Test: 31.64%, Time: 18.533640146255493s
+Run: 01, Epoch: 36, Loss: 0.2510, Train: 49.54%, Test: 30.24%, Time: 19.28058624267578s
+Run: 01, Epoch: 37, Loss: 0.2477, Train: 49.57%, Test: 30.51%, Time: 19.12980079650879s
+Run: 01, Epoch: 38, Loss: 0.2465, Train: 49.24%, Test: 31.34%, Time: 18.65597414970398s
+Run: 01, Epoch: 39, Loss: 0.2437, Train: 49.25%, Test: 29.69%, Time: 19.225579023361206s
+Run: 01, Epoch: 40, Loss: 0.2384, Train: 49.04%, Test: 30.19%, Time: 19.871531009674072s
+Run: 01, Epoch: 41, Loss: 0.2366, Train: 49.36%, Test: 30.08%, Time: 17.413143634796143s
+Run: 01, Epoch: 42, Loss: 0.2352, Train: 49.30%, Test: 30.95%, Time: 18.550557851791382s
+Run: 01, Epoch: 43, Loss: 0.2337, Train: 49.04%, Test: 30.53%, Time: 18.43953585624695s
+Run: 01, Epoch: 44, Loss: 0.2289, Train: 48.89%, Test: 30.06%, Time: 18.23676037788391s
+Run: 01, Epoch: 45, Loss: 0.2311, Train: 49.11%, Test: 29.53%, Time: 18.880176305770874s
+Run: 01, Epoch: 46, Loss: 0.2256, Train: 49.26%, Test: 30.07%, Time: 18.446486234664917s
+Run: 01, Epoch: 47, Loss: 0.2218, Train: 49.42%, Test: 30.04%, Time: 17.954986810684204s
+Run: 01, Epoch: 48, Loss: 0.2229, Train: 49.35%, Test: 30.77%, Time: 18.50619602203369s
+Run: 01, Epoch: 49, Loss: 0.2206, Train: 49.05%, Test: 30.85%, Time: 18.59388828277588s
+Run: 01, Epoch: 50, Loss: 0.2170, Train: 49.29%, Test: 30.30%, Time: 18.13951277732849s
+Run: 01, Epoch: 51, Loss: 0.2192, Train: 48.37%, Test: 29.76%, Time: 18.347933769226074s
+Run: 01, Epoch: 52, Loss: 0.2176, Train: 48.91%, Test: 30.38%, Time: 18.664587020874023s
+Run: 01, Epoch: 53, Loss: 0.2149, Train: 48.84%, Test: 29.98%, Time: 17.537884950637817s
+Run: 01, Epoch: 54, Loss: 0.2134, Train: 49.10%, Test: 30.17%, Time: 17.361296892166138s
+Run: 01, Epoch: 55, Loss: 0.2100, Train: 49.10%, Test: 30.44%, Time: 19.12425446510315s
+Run: 01, Epoch: 56, Loss: 0.2107, Train: 48.98%, Test: 31.18%, Time: 18.612459421157837s
+Run: 01, Epoch: 57, Loss: 0.2062, Train: 49.11%, Test: 30.31%, Time: 17.585254907608032s
+Run: 01, Epoch: 58, Loss: 0.2088, Train: 49.11%, Test: 30.57%, Time: 18.434385538101196s
+Run: 01, Epoch: 59, Loss: 0.2043, Train: 48.98%, Test: 30.40%, Time: 18.39009928703308s
+Run: 01, Epoch: 60, Loss: 0.2035, Train: 48.94%, Test: 30.58%, Time: 18.04383087158203s
+Run 01:
+Highest Train: 51.38
+Highest Valid: 33.08
+  Final Train: 50.39
+   Final Test: 33.35
+Avg_sampling_time: 0.6730698307355245s, Avg_to_time: 0.3833432555198669s,  Avg_train_time: 11.092605769634247s
+All runs:
+Highest Train: 51.38 ± nan
+Highest Valid: 33.08 ± nan
+  Final Train: 50.39 ± nan
+   Final Test: 33.35 ± nan

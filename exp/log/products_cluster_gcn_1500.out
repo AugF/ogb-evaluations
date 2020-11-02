@@ -1,0 +1,25 @@
+Using backend: pytorch
+Namespace(batch_size=1500, device=1, dropout=0.5, epochs=60, eval_steps=5, hidden_channels=256, log_steps=1, lr=0.001, num_layers=3, num_partitions=15000, num_workers=12, runs=1)
+Run: 01, Epoch: 01, Loss: 2.9878, Train: 41.59%, Valid: 41.31% Test: 33.88% Time: 248.40027785301208s
+Traceback (most recent call last):
+  File "products/cluster_gcn.py", line 257, in <module>
+    main()
+  File "products/cluster_gcn.py", line 220, in main
+    loss, sampling_time, to_time, train_time = train(model, loader, optimizer, device)
+  File "products/cluster_gcn.py", line 106, in train
+    out = model(data.x, data.edge_index)[data.train_mask]
+  File "/home/wangzhaokang/anaconda3/envs/ogb1.2.3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 722, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "products/cluster_gcn.py", line 51, in forward
+    x = conv(x, edge_index, edge_weight)
+  File "/home/wangzhaokang/anaconda3/envs/ogb1.2.3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 722, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/home/wangzhaokang/anaconda3/envs/ogb1.2.3/lib/python3.7/site-packages/torch_geometric/nn/conv/sage_conv.py", line 61, in forward
+    out = self.propagate(edge_index, x=x, size=size)
+  File "/home/wangzhaokang/anaconda3/envs/ogb1.2.3/lib/python3.7/site-packages/torch_geometric/nn/conv/message_passing.py", line 233, in propagate
+    kwargs)
+  File "/home/wangzhaokang/anaconda3/envs/ogb1.2.3/lib/python3.7/site-packages/torch_geometric/nn/conv/message_passing.py", line 158, in __collect__
+    j if arg[-2:] == '_j' else i)
+  File "/home/wangzhaokang/anaconda3/envs/ogb1.2.3/lib/python3.7/site-packages/torch_geometric/nn/conv/message_passing.py", line 127, in __lift__
+    return src.index_select(self.node_dim, index)
+RuntimeError: CUDA out of memory. Tried to allocate 5.43 GiB (GPU 1; 14.73 GiB total capacity; 2.94 GiB already allocated; 5.15 GiB free; 8.69 GiB reserved in total by PyTorch)
