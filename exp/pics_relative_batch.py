@@ -98,8 +98,8 @@ def pics_proportion(file_type="png", per_type="Batch"):
         # print(df_data)
         fig, ax = survey(xticklabels[:df_data.shape[0]], df_data, ['Sampling', 'Data Transferring', 'Training'], color_dark2=True)
         ax.set_title(file_name, loc="right")
-        ax.set_xlabel("Proportion (%)")
-        ax.set_ylabel("Relative Batch Size (%)")
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
         plt.tight_layout()
         fig.savefig(dir_out + "/proportion_bar/" + file_name + "." + file_type)
         
@@ -155,11 +155,11 @@ def pics_stack(per_type="Batch"):
         for i, rect in enumerate(rects):
             ax.text(rect.get_x() + rect.get_width() / 3, rect.get_y() + rect.get_height() / 3, '%.1f' % sampling_ratio[i])
 
-        ax.set_ylabel("Time (ms)")
-        ax.set_xlabel("Relative Batch Size (%)")
+        ax.set_ylabel(ylabel)
+        ax.set_xlabel(xlabel)
         ax.legend()#图例展示位置，数字代表第几象限
         fig.savefig("res/stack_bar/" + file_name + ".png")
     
 
-pics_proportion()
-pics_stack()
+pics_proportion(per_type="Epoch")
+pics_stack(per_type="Epoch")
