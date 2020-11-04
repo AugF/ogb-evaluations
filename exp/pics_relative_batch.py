@@ -8,26 +8,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
+
+from utils import batch_sizes, relative_precent
 plt.style.use("ggplot")
 plt.rcParams["font.size"] = 12
-
-batch_sizes = {
-    'mag_cluster_rgcn': [50, 150, 300, 500, 1000],
-    'mag_graphsaint_rgcn': [1939, 9698, 19397, 58192, 116384],
-    'mag_neighborsampling_rgcn': [969, 1939, 9698, 19397, 58192],
-    'products_cluster_gcn': [75, 150, 450, 900, 1350],
-    'products_cluster_sage': [75, 150, 450, 900, 1500],
-    'products_graphsaint_sage': [244, 1224, 2449, 12245, 24490]
-}
-
-relative_precent = {
-    'mag_cluster_rgcn': [1, 3, 6, 10, 20],
-    'mag_graphsaint_rgcn': [0.1, 0.5, 1, 3, 6],
-    'mag_neighborsampling_rgcn': [0.05, 0.1, 0.5, 1, 3],
-    'products_cluster_gcn': [0.5, 1, 3, 6, 9],
-    'products_cluster_sage': [0.5, 1, 3, 6, 10],
-    'products_graphsaint_sage': [0.01, 0.05, 0.1, 0.5, 1]
-}
 
 os.chdir("/home/wangzhaokang/wangyunpan/gnns-project/ogb_evaluations/exp")
 
@@ -73,11 +57,11 @@ def survey(labels, data, category_names, ax=None, color_dark2=False): # stages, 
 
     return fig, ax
 
-def pics_proportion_batch(file_type="png"):
+def pics_proportion(file_type="png", per_type="Batch"):
     dir_out = "res"
     
-    ylabel = "Training Time per Batch (ms)"
-    xlabel = "Relative Batch Size (%)"
+    ylabel = f"Training Time per {per_type} (ms)"
+    xlabel = f"Relative {per_type} Size (%)"
 
     for file_name in batch_sizes.keys():
         file_path = f"log/{file_name}"
@@ -120,11 +104,11 @@ def pics_proportion_batch(file_type="png"):
         fig.savefig(dir_out + "/proportion_bar/" + file_name + "." + file_type)
         
 
-def pics_stack_batch():
+def pics_stack(per_type="Batch"):
     dir_out = "res"
     
-    ylabel = "Training Time per Batch (ms)"
-    xlabel = "Relative Batch Size (%)"
+    ylabel = f"Training Time per {per_type} (s)"
+    xlabel = f"Relative {per_type} Size (%)"
     
     for file_name in batch_sizes.keys():
         file_path = f"log/{file_name}"
@@ -177,5 +161,5 @@ def pics_stack_batch():
         fig.savefig("res/stack_bar/" + file_name + ".png")
     
 
-pics_proportion_batch()
-pics_stack_batch()
+pics_proportion()
+pics_stack()
