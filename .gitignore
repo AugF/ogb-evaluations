@@ -3,4 +3,5 @@ dataset/*
 *.log
 *npy
 test*
-exp/*/*out
+*out
+*/run_dir/*
