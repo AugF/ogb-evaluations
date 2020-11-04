@@ -122,6 +122,25 @@ def get_max_epochs_acc():
         # df['epochs'].plot(ax=ax, marker='.')
         # df['acc'].plot(ax=ax, marker='.')
         # fig.savefig("res/acc_epoch/" + file_name + ".png")
-    
+
+
+def get_max_epochs_acc():
+    for file_name in batch_sizes.keys():
+        print(file_name)
+        df_data = {}
+        for bs in batch_sizes[file_name]:
+            # get avg_batch_time
+            log_path = "log/" + file_name + '_' + str(bs) + ".out"
+            train_time, sampling_time, to_time = 0.0, 0.0, 0.0
+            with open(log_path) as f:
+                for line in f:
+                    match_line = re.match(r"Avg_sampling_time: (.*)s, Avg_to_time: (.*)s,  Avg_train_time: (.*)s", line)
+                    if match_line:
+                        sampling_time = float(match_line.group(1))
+                        to_time = float(match_line.group(2))
+                        train_time = float(match_line.group(3))
+                        success = True
+                        break
+            avg_batch_time = sampling_time + to_time + train_time
 
 get_max_epochs_acc()

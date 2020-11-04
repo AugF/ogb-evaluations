@@ -57,39 +57,56 @@ class GCN(torch.nn.Module):
         return torch.log_softmax(x, dim=-1)
 
     def inference(self, x_all, subgraph_loader, device):
-        # pbar = tqdm(total=x_all.size(0) * len(self.convs))
-        # pbar.set_description('Evaluating')
-        
         x_all = self.inProj(x_all.to(device))
         x_all = x_all.cpu()
         inp = x_all
         x_all = F.relu(x_all)
         out = []
+        
+        sampling_time, to_time, train_time = 0.0, 0.0, 0.0
+        total_batches = len(subgraph_loader)
+        
         for i, conv in enumerate(self.convs):
             xs = []
-            for batch_size, n_id, adj in subgraph_loader:
-                edge_index, _, size = adj.to(device)
-                x = x_all[n_id].to(device)
-                x_target = x[:size[1]]
-                x = conv((x, x_target), edge_index)
-                if i != len(self.convs) - 1:
-                    x = F.relu(x)
-                    x = F.dropout(x, p=self.dropout, training=self.training)
-                xs.append(x.cpu())
-
-                # pbar.update(batch_size)
+            
+            loader_iter = iter(subgraph_loader)    
+            while True:
+                try:
+                    et0 = time.time()
+                    batch_size, n_id, adj = next(loader_iter)
+                    et1 = time.time()
+                    edge_index, _, size = adj.to(device)
+                    x = x_all[n_id].to(device)
+                    et2 = time.time()
+                    x_target = x[:size[1]]
+                    x = conv((x, x_target), edge_index)
+                    if i != len(self.convs) - 1:
+                        x = F.relu(x)
+                        x = F.dropout(x, p=self.dropout, training=self.training)
+                    xs.append(x.cpu())
+                    et3 = time.time()
+                    
+                    sampling_time += et1 - et0
+                    to_time += et2 - et1
+                    train_time += et3 - et2
+                except StopIteration:
+                    break
 
             x_all = torch.cat(xs, dim=0)
             if i != len(self.convs) - 1:
                 x_all = x_all + 0.2*inp
-        # pbar.close()
 
+        sampling_time /= total_batches
+        to_time /= total_batches
+        train_time /= total_batches
+        print(f"Evaluation: sampling time: {sampling_time}, to_time: {to_time}, train_time: {train_time}")
         return x_all
 
 def train(model, loader, optimizer, device):
     model.train()
 
     total_loss = total_examples = 0
+    total_batches = len(loader)
     
     sampling_time, to_time, train_time = 0.0, 0.0, 0.0
     loader_iter = iter(loader)
@@ -119,7 +136,7 @@ def train(model, loader, optimizer, device):
         except StopIteration:
             break
 
-    return total_loss / total_examples, sampling_time, to_time, train_time
+    return total_loss / total_examples, sampling_time / total_batches, to_time / total_batches, train_time / total_batches
 
 
 @torch.no_grad()
@@ -178,6 +195,7 @@ def main():
     args = parser.parse_args()
     print(args)
 
+    st0 = time.time()
     device = f'cuda:{args.device}' if torch.cuda.is_available() else 'cpu'
     device = torch.device(device)
 
@@ -191,6 +209,7 @@ def main():
         mask[idx] = True
         data[f'{key}_mask'] = mask
 
+    st1 = time.time()
     cluster_data = ClusterData(data, num_parts=args.num_partitions,
                                recursive=False, save_dir=dataset.processed_dir)
 
@@ -200,7 +219,11 @@ def main():
     subgraph_loader = NeighborSampler(data.edge_index, sizes=[-1],
                                       batch_size=1024, shuffle=False,
                                       num_workers=args.num_workers)
-
+    
+    st2 = time.time()
+    print("batch nums: ", len(loader))
+    print("sampling loader time", st2 - st1)
+    
     model = GCN(data.x.size(-1), args.hidden_channels, dataset.num_classes,
                  args.num_layers, args.dropout).to(device)
 
@@ -209,7 +232,11 @@ def main():
 
     adj = process_adj(data)
 
+    st3 = time.time()
+    print("preprocess time: ", st3 - st0)
+    
     avg_sampling_time, avg_to_time, avg_train_time = 0.0, 0.0, 0.0
+    avg_training_time, avg_evaluation_time = 0.0, 0.0
     
     for run in range(args.runs):
         model.reset_parameters()
@@ -223,12 +250,10 @@ def main():
             avg_to_time += to_time
             avg_train_time += train_time
             
-            # if epoch % args.log_steps == 0:
-            #     print(f'Run: {run + 1:02d}, '
-            #           f'Epoch: {epoch:02d}, '
-            #           f'Loss: {loss:.4f}')
-
-            # if epoch > 19 and epoch % args.eval_steps == 0:
+            t1 = time.time()
+            avg_training_time += t1 - t0
+            print("training total time: ", t1 - t0)
+            
             _, result = test(model, data, evaluator, subgraph_loader, device)
             logger.add_result(run, result)
             train_acc, valid_acc, test_acc = result
@@ -240,6 +265,10 @@ def main():
                 f'Test: {100 * test_acc:.2f}% '
                 f'Time: {time.time() - t0}s')
             
+            t2 = time.time()
+            avg_evaluation_time += t2 - t1
+            print("evaluate total time: ", t2 - t1)
+        
         logger.print_statistics(run)
 
     avg_sampling_time /= args.runs * args.epochs
@@ -250,7 +279,9 @@ def main():
         f'Avg_train_time: {avg_train_time}s')
     
     logger.print_statistics()
-    logger.save("/home/wangzhaokang/wangyunpan/gnns-project/ogb_evaluations/exp/npy/products_cluster_gcn" + str(args.batch_size))
+    st4 = time.time()
+    print("total training time: ", st4 - st3)
+    logger.save("/home/wangzhaokang/wangyunpan/gnns-project/ogb_evaluations/exp/npy_full/products_cluster_gcn" + str(args.batch_size))
 
 
 if __name__ == "__main__":
