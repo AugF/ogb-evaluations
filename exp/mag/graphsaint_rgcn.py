@@ -188,7 +188,7 @@ def train(epoch):
     model.train()
 
     total_loss = total_examples = 0
-    total_batchs = len(train_loader)
+    total_batches = len(train_loader)
 
     sampling_time, to_time, train_time = 0.0, 0.0, 0.0
     loader_iter = iter(train_loader)
@@ -222,6 +222,31 @@ def train(epoch):
     # pbar.close()
 
     return total_loss / total_examples, sampling_time / total_batches, to_time / total_batches, train_time / total_batches
+
+@torch.no_grad()
+def test():
+    model.eval()
+
+    out = model.inference(x_dict, edge_index_dict, key2int)
+    out = out[key2int['paper']]
+
+    y_pred = out.argmax(dim=-1, keepdim=True).cpu()
+    y_true = data.y_dict['paper']
+
+    train_acc = evaluator.eval({
+        'y_true': y_true[split_idx['train']['paper']],
+        'y_pred': y_pred[split_idx['train']['paper']],
+    })['acc']
+    valid_acc = evaluator.eval({
+        'y_true': y_true[split_idx['valid']['paper']],
+        'y_pred': y_pred[split_idx['valid']['paper']],
+    })['acc']
+    test_acc = evaluator.eval({
+        'y_true': y_true[split_idx['test']['paper']],
+        'y_pred': y_pred[split_idx['test']['paper']],
+    })['acc']
+
+    return train_acc, valid_acc, test_acc
 
 
 st0 = time.time()

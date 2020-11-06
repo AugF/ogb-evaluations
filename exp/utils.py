@@ -18,3 +18,14 @@ relative_precent = {
     'products_graphsaint_sage': [0.01, 0.05, 0.1, 0.5, 1],
     'products_neighborsampling_sage': [0.01, 0.05, 0.1, 0.5, 1]
 }
+
+batches_per_epoch = {
+    'mag_cluster_rgcn': [100, 34, 17, 10, 5],
+    'mag_graphsaint_rgcn': [30, 30, 30, 30, 30],
+    'mag_neighborsampling_rgcn': [650, 325, 65, 33, 11],
+    'products_cluster_gcn': [200, 100, 34, 17, 12],
+    'products_cluster_sage': [200, 100, 34, 17, 12],
+    'products_graphsaint_sage': [30, 30, 30, 30, 30],
+    'products_neighborsampling_sage': [806, 161, 81, 17, 9]
+}
+

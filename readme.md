@@ -23,7 +23,4 @@ cluster_gcn, graphsaint_sage, neighborsamping_gat
 mag: 2,4,6
 cluster_rgcn, graphsaint_rgcn, neighborsampling_rgcn
 
-todo:
-
-[ ] check products/neighborsampling_sage.py
-[ ] run products/neighborsampling_sage.py
+### 实验结果

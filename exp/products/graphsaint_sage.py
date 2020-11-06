@@ -92,7 +92,7 @@ def train(model, loader, optimizer, device):
     model.train()
 
     total_loss = total_examples = 0
-
+    total_batches = len(loader)
     sampling_time, to_time, train_time = 0.0, 0.0, 0.0
     
     loader_iter = iter(loader)
@@ -121,7 +121,7 @@ def train(model, loader, optimizer, device):
         except StopIteration:
             break
 
-    return total_loss / total_examples, sampling_time, to_time, train_time
+    return total_loss / total_examples, sampling_time / total_batches, to_time / total_batches, train_time / total_batches
 
 
 @torch.no_grad()

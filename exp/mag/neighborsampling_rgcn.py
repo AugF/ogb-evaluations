@@ -195,11 +195,9 @@ class RGCN(torch.nn.Module):
 def train(epoch):
     model.train()
 
-    # pbar = tqdm(total=paper_train_idx.size(0))
-    # pbar.set_description(f'Epoch {epoch:02d}')
-
     total_loss = 0
     
+    total_batches = len(train_loader)
     sampling_time, to_time, train_time = 0.0, 0.0, 0.0
     loader_iter = iter(train_loader)
      
@@ -220,17 +218,15 @@ def train(epoch):
             optimizer.step()
 
             total_loss += loss.item() * batch_size
-            # pbar.update(batch_size)
             train_time += time.time() - t2
             to_time += t2 - t1
             sampling_time += t1 - t0   
         except StopIteration:
             break
-    # pbar.close()
 
     loss = total_loss / paper_train_idx.size(0)
 
-    return loss, sampling_time, to_time, train_time
+    return loss, sampling_time / total_batches, to_time / total_batches, train_time / total_batches
 
 
 @torch.no_grad()

@@ -2,6 +2,6 @@ dataset/*
 *__*
 *.log
 *npy
-test*
+*test*
 *out
 */run_dir/*

@@ -5,6 +5,7 @@ rank: 12
 2020-10-27
 '''
 import time
+import sys
 import os.path as osp
 import argparse
 import torch
@@ -22,7 +23,7 @@ parser.add_argument('--batch_size', type=int, default=1024)
 parser.add_argument('--epochs', type=int, default=20)
 parser.add_argument('--runs', type=int, default=10)
 args = parser.parse_args()
-print(args)
+# print(args)
 
 dataset = PygNodePropPredDataset('ogbn-products', root="/home/wangzhaokang/wangyunpan/gnns-project/ogb_evaluations/dataset")
 split_idx = dataset.get_idx_split()
@@ -38,6 +39,8 @@ subgraph_loader = NeighborSampler(data.edge_index, node_idx=None, sizes=[-1],
                                   batch_size=4096, shuffle=False,
                                   num_workers=12)
 
+print("batch nums: ", len(train_loader))
+sys.exit(0)
 
 class SAGE(torch.nn.Module):
     def __init__(self, in_channels, hidden_channels, out_channels, num_layers):

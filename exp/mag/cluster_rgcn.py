@@ -13,7 +13,7 @@ import torch
 import torch.nn.functional as F
 from torch.nn import ModuleList, Linear, ParameterDict, Parameter
 from torch_sparse import SparseTensor
-from torch_geometric.utils import to_undirected
+from torch_geometric.utils import to_undi  rected
 from torch_geometric.data import Data, ClusterData, ClusterLoader
 from torch_geometric.utils.hetero import group_hetero_graph
 from torch_geometric.nn import MessagePassing
