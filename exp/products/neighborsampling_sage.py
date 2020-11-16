@@ -25,7 +25,7 @@ parser.add_argument('--runs', type=int, default=10)
 args = parser.parse_args()
 # print(args)
 
-dataset = PygNodePropPredDataset('ogbn-products', root="/home/wangzhaokang/wangyunpan/gnns-project/ogb_evaluations/dataset")
+dataset = PygNodePropPredDataset('ogbn-products', root="/home/wangzhaokang/wangyunpan/gnns-project/datasets")
 split_idx = dataset.get_idx_split()
 evaluator = Evaluator(name='ogbn-products')
 data = dataset[0]

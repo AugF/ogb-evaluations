@@ -52,3 +52,4 @@ cluster_products: 15000
         > log_full, npy_full是旧版的结果，代码已经更正
         > 
     - [ ] check Sample的耗时比例
+        > Sampler_training, Sampler_evaluation, Data Transferring, Training
