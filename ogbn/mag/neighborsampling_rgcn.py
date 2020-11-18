@@ -337,4 +337,3 @@ for run in range(args.runs):
               f'Test: {100 * test_acc:.2f}%')
     logger.print_statistics(run)
 logger.print_statistics()
-logger.save(__file__[:-3])

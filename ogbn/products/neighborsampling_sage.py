@@ -187,7 +187,6 @@ for run in range(args.runs):
     logger.print_statistics(run)
     
 logger.print_statistics()
-logger.save(__file__[:-3])
 test_acc = torch.tensor(test_accs)
 print('============================')
 print(f'Final Test: {test_acc.mean():.4f} ± {test_acc.std():.4f}')

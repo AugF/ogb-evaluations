@@ -43,6 +43,3 @@ class Logger(object):
                 print(f'  Final Train: {r.mean():.2f} ± {r.std():.2f}')
             r = best_result[:, 3]
             print(f'   Final Test: {r.mean():.2f} ± {r.std():.2f}')
-
-    def save(self, file_name):
-        np.save(file_name, np.array(self.results))

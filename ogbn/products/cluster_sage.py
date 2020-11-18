@@ -187,7 +187,6 @@ def main():
 
         logger.print_statistics(run)
     logger.print_statistics()
-    logger.save(__file__[:-3])
 
 
 if __name__ == "__main__":
