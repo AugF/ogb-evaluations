@@ -12,25 +12,30 @@ from torch_geometric.data import GraphSAINTRandomWalkSampler
 from torch_geometric.nn import GraphConv
 from torch_geometric.utils import degree
 
-from utils import get_dataset
+from utils import get_dataset, get_split_by_file
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--use_normalization', action='store_true')
 parser.add_argument('--dataset', type=str, default="cora")
+parser.add_argument('--batch_size', type=int, default=6000)
+parser.add_argument('--device', type=int, default=0)
+parser.add_argument('--epochs', type=int, default=500)
 args = parser.parse_args()
 
 dataset = get_dataset(args.dataset)
 data = dataset[0]
 
-print("data", data)
 row, col = data.edge_index
 data.edge_weight = 1. / degree(col, data.num_nodes)[col]  # Norm by in-degree.
 
-loader = GraphSAINTRandomWalkSampler(data, batch_size=6000, walk_length=2,
+if args.dataset in ['amazon-computers', 'amazon-photo', 'coauthor-physics', 'coauthor-cs']:
+    file_path = osp.join('/home/wangzhaokang/wangyunpan/gnns-project/datasets', args.dataset + "/raw/role.json")
+    data.train_mask, data.val_mask, data.test_mask = get_split_by_file(file_path, data.num_nodes)
+    
+loader = GraphSAINTRandomWalkSampler(data, batch_size=args.batch_size, walk_length=2,
                                      num_steps=5, sample_coverage=100,
                                      save_dir=dataset.processed_dir,
                                      num_workers=4)
-
 
 class Net(torch.nn.Module):
     def __init__(self, hidden_channels):
@@ -59,7 +64,7 @@ class Net(torch.nn.Module):
         return x.log_softmax(dim=-1)
 
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device(f'cuda:{args.device}' if torch.cuda.is_available() else 'cpu')
 model = Net(hidden_channels=256).to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
@@ -103,9 +108,14 @@ def test():
         accs.append(correct[mask].sum().item() / mask.sum().item())
     return accs
 
-
-for epoch in range(1, 51):
+best_val_acc = final_test_acc = 0
+for epoch in range(1, args.epochs):
     loss = train()
     accs = test()
     print(f'Epoch: {epoch:02d}, Loss: {loss:.4f}, Train: {accs[0]:.4f}, '
           f'Val: {accs[1]:.4f}, Test: {accs[2]:.4f}')
+    if accs[1] > best_val_acc:
+        best_val_acc = accs[1]
+        final_test_acc = accs[2]
+
+print(f"Final Test: {final_test_acc:.4f}") 

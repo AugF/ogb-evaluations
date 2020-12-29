@@ -50,6 +50,13 @@ cluster_products: 15000
         > (暂时不收集products_cluster_sage的结果, 未跑完)
         > mag_neighborsampling_rgcn, products_graphsaint_sage忘记除以total_batches, 进行补救; 
         > log_full, npy_full是旧版的结果，代码已经更正
-        > 
-    - [ ] check Sample的耗时比例
+    - [x] check Sample的耗时比例
         > Sampler_training, Sampler_evaluation, Data Transferring, Training
+        > 注意到这里的单位应该是epoch
+        - mag: 无Sampler_evaluation部分, sampler_training * len(train_loader), evaluation_total
+            - cluster_rgcn: 
+            - graphsaint_rgcn: 
+            - neighborsampling_rgcn: 
+        - products: sampler_training, sampler_evaluation, to_training, to_evaluation, train_training, train_evaluation
+            - cluster_gcn, cluster_sage: 2392
+            - graphsaint_sage, neighborsampling_sage: 598

@@ -29,3 +29,10 @@ batches_per_epoch = {
     'products_neighborsampling_sage': [806, 161, 81, 17, 9]
 }
 
+val_batches_per_epoch = {
+    'products_cluster_gcn': 2392,
+    'products_cluster_sage': 2392,
+    'products_graphsaint_sage': 598,
+    'products_neighborsampling_sage': 598 
+}
+

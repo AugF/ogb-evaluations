@@ -39,8 +39,7 @@ subgraph_loader = NeighborSampler(data.edge_index, node_idx=None, sizes=[-1],
                                   batch_size=4096, shuffle=False,
                                   num_workers=12)
 
-print("batch nums: ", len(train_loader))
-sys.exit(0)
+print("batch nums: ", len(train_loader), len(subgraph_loader))
 
 class SAGE(torch.nn.Module):
     def __init__(self, in_channels, hidden_channels, out_channels, num_layers):
@@ -80,25 +79,44 @@ class SAGE(torch.nn.Module):
         # Compute representations of nodes layer by layer, using *all*
         # available edges. This leads to faster computation in contrast to
         # immediately computing the final representations of each batch.
+        total_batches = len(subgraph_loader)
+        sampling_time, to_time, train_time = 0.0, 0.0, 0.0
+        
         total_edges = 0
         for i in range(self.num_layers):
             xs = []
-            for batch_size, n_id, adj in subgraph_loader:
-                edge_index, _, size = adj.to(device)
-                total_edges += edge_index.size(1)
-                x = x_all[n_id].to(device)
-                x_target = x[:size[1]]
-                x = self.convs[i]((x, x_target), edge_index)
-                if i != self.num_layers - 1:
-                    x = F.relu(x)
-                xs.append(x.cpu())
-
+            
+            loader_iter = iter(subgraph_loader)
+            while True:
+                try:
+                    et0 = time.time()
+                    batch_size, n_id, adj = next(loader_iter)
+                    et1 = time.time()
+                    edge_index, _, size = adj.to(device)
+                    x = x_all[n_id].to(device)
+                    et2 = time.time()
+                    x_target = x[:size[1]]
+                    x = self.convs[i]((x, x_target), edge_index)
+                    if i != self.num_layers - 1:
+                        x = F.relu(x)
+                    xs.append(x.cpu())
+                    et3 = time.time()
+                    
+                    sampling_time += et1 - et0
+                    to_time += et2 - et1
+                    train_time += et3 - et2
+                except StopIteration:
+                    break
                 # pbar.update(batch_size)
 
             x_all = torch.cat(xs, dim=0)
 
         # pbar.close()
-
+        sampling_time /= total_batches
+        to_time /= total_batches
+        train_time /= total_batches
+        print(f"Evaluation: sampling time: {sampling_time}, to_time: {to_time}, train_time: {train_time}")
+        
         return x_all
 
 
@@ -119,6 +137,7 @@ def train(epoch):
     total_loss = 0
     
     sampling_time, to_time, train_time = 0.0, 0.0, 0.0
+    total_batches = len(train_loader)
     loader_iter = iter(train_loader)
      
     while True:
@@ -146,9 +165,8 @@ def train(epoch):
             break
     # pbar.close()
 
-    loss = total_loss / len(train_loader)
     # approx_acc = total_correct / train_idx.size(0)
-    return loss, sampling_time, to_time, train_time
+    return total_loss / total_batches, sampling_time / total_batches, to_time / total_batches, train_time / total_batches
 
 
 @torch.no_grad()
@@ -212,4 +230,3 @@ print(f'Avg_sampling_time: {avg_sampling_time}s, '
     f'Avg_train_time: {avg_train_time}s')
 
 logger.print_statistics()
-logger.save("/home/wangzhaokang/wangyunpan/gnns-project/ogb_evaluations/exp/npy/products_neighborsampling_rgcn" + str(args.batch_size))

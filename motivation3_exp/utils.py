@@ -9,6 +9,19 @@ from torch_geometric.datasets.amazon import Amazon
 from torch_geometric.datasets.coauthor import Coauthor
 from torch_geometric.datasets import Flickr
 
+percents = [0.01, 0.05, 0.1, 0.25, 0.50]
+nodes = [2708, 3327, 19717, 7650, 13752, 34493, 18333, 89250]
+run_batches = {
+    'cora': [27, 135, 270, 677, 1354], 
+    'citeseer': [33, 166, 332, 831, 1663], 
+    'pubmed': [197, 985, 1971, 4929, 9858], 
+    'amazon-photo': [76, 382, 765, 1912, 3825], 
+    'amazon-computers': [137, 687, 1375, 3438, 6876], 
+    'coauthor-physics': [344, 1724, 3449, 8623, 17246], 
+    'coauthor-cs': [183, 916, 1833, 4583, 9166], 
+    'flickr': [892, 4462, 8925, 22312, 44625]}
+
+
 def get_dataset(name, normalize_features=False, transform=None): #
     if name in ["cora", "pubmed", "citeseer"]: 
         path = osp.join('/home/wangzhaokang/wangyunpan/gnns-project/datasets')
@@ -68,5 +81,4 @@ def test():
         print(data, dataset)
 
 
-if __name__ == "__main__":
-    test()
+gen_roles(raw_dir="/home/wangzhaokang/wangyunpan/gnns-project/datasets/coauthor-cs/raw/", nodes=18333, tr=0.70, va=0.15, seed=1)

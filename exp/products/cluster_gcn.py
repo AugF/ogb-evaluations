@@ -221,7 +221,8 @@ def main():
                                       num_workers=args.num_workers)
     
     st2 = time.time()
-    print("batch nums: ", len(loader))
+    print("batch nums: ", len(loader), len(subgraph_loader))
+    
     print("sampling loader time", st2 - st1)
     
     model = GCN(data.x.size(-1), args.hidden_channels, dataset.num_classes,
@@ -281,7 +282,6 @@ def main():
     logger.print_statistics()
     st4 = time.time()
     print("total training time: ", st4 - st3)
-    logger.save("/home/wangzhaokang/wangyunpan/gnns-project/ogb_evaluations/exp/npy_full/products_cluster_gcn" + str(args.batch_size))
 
 
 if __name__ == "__main__":

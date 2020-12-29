@@ -1,3 +1,6 @@
+'''
+改文件是为了画耗时比例随着Batch Size变化的图像
+'''
 # coding=utf-8
 import os
 import sys

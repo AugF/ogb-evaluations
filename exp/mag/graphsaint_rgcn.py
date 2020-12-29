@@ -383,4 +383,3 @@ print(f'Avg_sampling_time: {avg_sampling_time}s, '
 logger.print_statistics()
 st4 = time.time()
 print("total training time: ", st4 - st3) 
-logger.save("/home/wangzhaokang/wangyunpan/gnns-project/ogb_evaluations/exp/npy_full/mag_graphsaint_rgcn" + str(args.batch_size))
